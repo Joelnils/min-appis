@@ -1,26 +1,44 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+// src/components/ProductList.tsx
 
-function App() {
+import React, { useEffect, useState } from 'react';
+import { getAllProducts } from './api/api';
+import { Product } from './types/types';
+import { FilterComponent } from './demo/demo';
+
+const ProductList = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filter, setFilter] = useState<string>('');
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const productsFromAPI = await getAllProducts();
+      setProducts(productsFromAPI);
+    };
+
+    fetchProducts();
+  }, []);
+
+  const handleFilterChange = (category: string) => {
+    setFilter(category);
+  };
+
+  const filteredProducts = filter
+    ? products.filter(product => product.category === filter)
+    : products;
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <FilterComponent setFilter={handleFilterChange} />
+      {filteredProducts.map(product => (
+        <div key={product.id} style={{ marginBottom: '20px' }}>
+          <img src={product.image} alt={product.title} style={{ width: '100px', height: '100px' }} />
+          <h2>{product.title}</h2>
+          <p>{product.price} kr</p>
+          {/* Andra produktattribut */}
+        </div>
+      ))}
     </div>
   );
-}
+};
 
-export default App;
+export default ProductList;
